@@ -1,11 +1,11 @@
 {
   "name": "employee-tracker",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "description": "CLI employee CMS",
+  "main": "app.js",
   "scripts": {
     "test": "jest",
-    "start": "node server.js"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
