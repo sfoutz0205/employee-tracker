@@ -1,26 +1,26 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require("console.table");
+const { clear } = require('console');
 
 // creating connection to database
 const connection = mysql.createConnection({
   host: 'localhost',
-  port: 3002,
+  port: 3306,
   user: 'root',
-  password: '',
+  password: '14Rosalit@',
   database: 'employee_db'
 });
 
 // establishing connection to database
 connection.connect(function(err) {
   if (err) throw err;
-  console.log('connected as id ' + connection.threadId);
+  console.log('connected to employee database!');
 
-  
   promptUser();
 });
 
-// prompt user to begin application
+// prompt user to select from menu
 function promptUser() {
   inquirer.prompt({
     type: 'list',
@@ -68,6 +68,55 @@ function promptUser() {
   });
 };
 
+// User selected VIEW DEPARTMENTS
 
+function viewDepartments() {
+  let query = "SELECT * FROM department";
+  connection.query(query, function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    promptUser();
+  });
+};
+
+// User selected VIEW ROLES
+function viewRoles() {
+  let query = "SELECT * FROM roles";
+  connection.query(query, function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    promptUser();
+  });
+};
+
+// User selected VIEW EMPLOYEES
+function viewEmployees() {
+  let query = "SELECT * FROM employees";
+  connection.query(query, function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    promptUser();
+  });
+};
+
+// User selected ADD DEPARTMENT
+function addDepartment() {
+
+  inquirer.prompt({
+
+    type: 'input',
+    message: 'Enter name of new department.',
+    name: 'deptName'
+
+  }).then(function(answer) {
+
+    connection.query('INSERT INTO department (name) VALUES (?)', [answer.deptName], function(err, res) {
+      if (err) throw err;
+      console.table(res);
+      promptUser();
+    })
+
+  });
+};
 
 
