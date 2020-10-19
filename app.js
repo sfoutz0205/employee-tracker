@@ -57,7 +57,7 @@ function promptUser() {
         addDepartment();
         break;
       case 'Add role':
-        addRole();
+        getDept();
         break;
       case 'Add employee':
         addEmployee();
@@ -103,7 +103,7 @@ function addDepartment() {
 
 // VIEW ROLES
 function viewRoles() {
-  let query = "SELECT * FROM roles";
+  let query = 'SELECT a.id, a.title, b.name as department, a.salary FROM roles a JOIN departments b on a.department_id = b.id';
   connection.query(query, function(err, res) {
     if (err) throw err;
     console.table(res);
@@ -111,10 +111,23 @@ function viewRoles() {
   });
 };
 
+// get Department names to use as choices
+function getDept() {
+  var query = "SELECT * FROM departments"
+
+  connection.query(query, function (err, res) {
+      if (err) throw err;
+
+      const deptChoice = res.map(({ id, name }) => ({
+          value: id, name: `${name}`
+      }));
+      addRole(deptChoice)
+  })
+
+}
+
 // ADD ROLE
-function addRole() {
-  let query = "SELECT name FROM departments"; 
-  console.log(query);
+function addRole(deptChoice) {
   inquirer.prompt([
     {
       type: 'input',
@@ -128,12 +141,14 @@ function addRole() {
     },
     {
       type: 'list',
-      message: 'Choose a department.',
-      choices: 'deptId'
+      name: 'roleDept',
+      message: 'Which department does this role belong to?',
+      choices: deptChoice,
+      name: 'roleDept'
     }
   ]).then(function(answer) {
 
-    connection.query('INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)', [answer.roleName, answer.roleSalary, answer.deptId], function(err, res) {
+    connection.query('INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)', [answer.roleName, answer.roleSalary, answer.roleDept], function(err, res) {
       if (err) throw err;
       console.table(res);
       promptUser();
@@ -144,13 +159,18 @@ function addRole() {
 
 // VIEW EMPLOYEES
 function viewEmployees() {
-  let query = 'SELECT id, first_name, last_name FROM employees';
+  let query = `SELECT a.id, a.first_name, a.last_name, b.title, b.salary, c.name as department, CONCAT(d.first_name, ' ', d.last_name) as manager FROM employees a
+               JOIN roles b on a.role_id = b.id 
+               JOIN departments c ON c.id = b.department_id
+               LEFT JOIN employees d ON d.id = a.manager_id`;
   connection.query(query, function(err, res) {
     if (err) throw err;
     console.table(res);
     promptUser();
   });
 };
+
+
 
 // ADD EMPLOYEE
 function addEmployee() {
