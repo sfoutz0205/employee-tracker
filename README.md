@@ -10,13 +10,19 @@ Employee Tracker is a command-line content management systems application that c
 * MySQL
 
 
-## Demonstration ##
+## App Demo ##
 
-![Note Taker](https://user-images.githubusercontent.com/68661461/95694515-a8ae0c00-0bef-11eb-8f21-b6df0a052333.gif)
+<img width="622" alt="Screen Shot 2020-10-19 at 3 24 35 PM" src="https://user-images.githubusercontent.com/68661461/96513342-39ec3680-121f-11eb-8e79-5b2e1c727bf2.png">
+
+<img width="602" alt="Screen Shot 2020-10-19 at 3 27 33 PM" src="https://user-images.githubusercontent.com/68661461/96513635-a0715480-121f-11eb-8605-39aa05419a60.png">
+
+### Link to Full Video ###
+
+https://drive.google.com/file/d/1PwjvGrr0qpHz22UwaNE38d2dUmXPG4AL/view?usp=sharing
 
 ## Instructions ##
 
-* From the command line, enter 'npm start' to run the application.
+* From the command line, in the root directory, enter 'npm start' to run the application.
 * You will be presented with a menu of options as follows:
   - View Departments: when selected, this option will display a table of all departments and their info, including department names and ids.
   - View Roles: when selected, this option will display a table of all roles and their info, including ids, job titles, departments, and salary.

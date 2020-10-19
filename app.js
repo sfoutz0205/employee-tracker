@@ -19,7 +19,6 @@ connection.connect(err => {
   if (err) throw err;
 
   console.log('connected to employee database!');
-
   promptUser();
 });
 
@@ -30,7 +29,8 @@ figlet('Employee Tracker', function(err, data) {
         console.dir(err);
         return;
     }
-    console.log(data)
+    console.log('\n', data,'\n')
+    
 });
 
 // prompt user to select from menu
