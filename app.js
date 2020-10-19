@@ -60,10 +60,10 @@ function promptUser() {
         getDept();
         break;
       case 'Add employee':
-        addEmployee();
+        getRoles();
         break;
       case "Update employee role":
-        updateEmployee();
+        getEmployees();
         break;
       default:
         quit();
@@ -77,7 +77,7 @@ function viewDepartments() {
   let query = "SELECT * FROM departments";
   connection.query(query, function(err, res) {
     if (err) throw err;
-    console.table(res);
+    console.table('\n',res,'\n');
     promptUser();
   });
 };
@@ -94,7 +94,7 @@ function addDepartment() {
 
     connection.query('INSERT INTO departments (name) VALUES (?)', [answer.deptName], function(err, res) {
       if (err) throw err;
-      console.table(res);
+      console.table('\n',res,'\n');
       promptUser();
     })
 
@@ -106,12 +106,12 @@ function viewRoles() {
   let query = 'SELECT a.id, a.title, b.name as department, a.salary FROM roles a JOIN departments b on a.department_id = b.id';
   connection.query(query, function(err, res) {
     if (err) throw err;
-    console.table(res);
+    console.table('\n',res,'\n');
     promptUser();
   });
 };
 
-// get Department names to use as choices
+// get Department names to use as choices in addRole
 function getDept() {
   var query = "SELECT * FROM departments"
 
@@ -150,7 +150,7 @@ function addRole(deptChoice) {
 
     connection.query('INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)', [answer.roleName, answer.roleSalary, answer.roleDept], function(err, res) {
       if (err) throw err;
-      console.table(res);
+      console.table('\n',res,'\n');
       promptUser();
     })
 
@@ -165,15 +165,50 @@ function viewEmployees() {
                LEFT JOIN employees d ON d.id = a.manager_id`;
   connection.query(query, function(err, res) {
     if (err) throw err;
-    console.table(res);
+    console.table('\n',res,'\n');
     promptUser();
   });
 };
 
+// get Role names to use as choices in addEmployee
+function getRoles() {
+  var query = `SELECT title AS name, id FROM roles`
 
+  connection.query(query, function(err, res) {
+    if (err) throw err;
+
+    const roleChoice = res.map(({ id, name }) => ({
+      value: id, 
+      name: name
+    }));
+
+    getManagers(roleChoice);
+  })
+};
+
+// get Manager names to use as choices in addEmployee
+function getManagers(roleChoice) {
+  var query = `SELECT * FROM employees`
+
+  connection.query(query, function(err, res) {
+    if (err) throw err;
+
+    let managerChoice = res.map(({ id, first_name, last_name}) => ({
+      name: `${first_name} ${last_name}`,
+      value: id
+    }));
+    const noManager = {
+      name: 'This employee has no manager.',
+      value: null
+    }
+    managerChoice.push(noManager)
+
+    addEmployee(roleChoice, managerChoice);
+  })
+};
 
 // ADD EMPLOYEE
-function addEmployee() {
+function addEmployee(roleChoice, managerChoice) {
   inquirer.prompt ([
     {
       type: "input",
@@ -186,46 +221,82 @@ function addEmployee() {
       name: "lastName"
     },
     {
-      type: "input",
-      message: "Enter role id for new employee.",
-      name: "roleId"
+      type: "list",
+      name: "employeeRole",
+      message: "Choose a role for new employee",
+      choices: roleChoice
     },
     {
-      type: "input",
-      message: "Enter manager id for new employee.",
-      name: "managerId"
+      type: "list",
+      name: "employeeManager",
+      message: "Choose a manager for new employee.",
+      choices: managerChoice
     },
   ]).then(function(answer) {
 
-    connection.query('INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answer.firstName, answer.lastName, answer.roleId, answer.managerId], function(err, res) {
+    connection.query('INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answer.firstName, answer.lastName, answer.employeeRole, answer.employeeManager], function(err, res) {
       if (err) throw err;
-      console.table(res);
+      console.table('\n',res,'\n');
       promptUser();
     })
 
   });
 };
 
+// get employee names for updateEmployee
+function getEmployees() {
+  var query = `SELECT * FROM employees`
+
+  connection.query(query, function(err, res) {
+    if (err) throw err;
+
+    const employeeChoice = res.map(({ id, first_name, last_name }) => ({
+      name: `${first_name} ${last_name}`,
+      value: id
+    }));
+
+    employeeRole(employeeChoice);
+  })
+};
+
+// get employee roles for updateEmployee
+function employeeRole(employeeChoice) {
+  var query = `SELECT title AS name, id FROM roles`
+
+  connection.query(query, function (err, res) {
+    if (err) throw err;
+
+    const updateRoles = res.map(({ name, id }) => ({
+      name: name, 
+      value: id
+    }));
+
+    updateEmployee(employeeChoice, updateRoles)
+  })
+};
+
 // UPDATE EMPLOYEE
 
-function updateEmployee() {
-  inquirer.prompt([
+function updateEmployee(employeeChoice, updateRoles) {
+  return inquirer.prompt([
     {
-      type: "input",
+      type: "list",
+      name: "updateEmployee",
       message: "Which employee would you like to update?",
-      name: "updateName"
+      choices: employeeChoice
     },
 
     {
-      type: "input",
+      type: "list",
+      name: "updateRole",
       message: "Select a new role for this employee.",
-      name: "updateRole"
+      choices: updateRoles
     }
   ]).then(function(answer) {
 
-    connection.query('UPDATE employees SET role_id = ? WHERE first_name = ?', [answer.updateRole, answer.updateName], function(err, res) {
+    connection.query('UPDATE employees SET role_id = ? WHERE id = ?', [answer.updateRole, answer.updateEmployee], function(err, res) {
       if (err) throw err;
-      console.table(res);
+      console.table('\n',res,'\n');
       promptUser();
     })
 
