@@ -4,13 +4,12 @@ const mysql = require("mysql2");
 const cTable = require("console.table");
 
 
-
 // creating connection to database
 const connection = mysql.createConnection({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: '14Rosalit@',
+  password: process.env.PASSWORD,
   database: 'employee_db'
 });
 
@@ -25,6 +24,12 @@ connection.connect(err => {
 
 // prompt user to select from menu
 function promptUser() {
+  console.log(`
+
+    =========================================
+         Employee Management Application
+    =========================================`);
+
   inquirer.prompt({
     type: 'list',
     choices: [
