@@ -2,6 +2,7 @@ require('dotenv').config();
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 const cTable = require("console.table");
+var figlet = require('figlet');
 
 
 // creating connection to database
@@ -22,14 +23,19 @@ connection.connect(err => {
   promptUser();
 });
 
+// application title
+figlet('Employee Tracker', function(err, data) {
+    if (err) {
+        console.log('Something went wrong...');
+        console.dir(err);
+        return;
+    }
+    console.log(data)
+});
+
 // prompt user to select from menu
 function promptUser() {
-  console.log(`
-
-    =========================================
-         Employee Management Application
-    =========================================`);
-
+  
   inquirer.prompt({
     type: 'list',
     choices: [
